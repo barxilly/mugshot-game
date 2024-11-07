@@ -1,6 +1,27 @@
 import './App.css'
 import axios from 'axios'
 
+
+async function translateText(text: string, targetLanguage: string) {
+  const apiKey = "GCLOUD_API_KEY"
+  const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      q: text,
+      target: targetLanguage,
+    }),
+  })
+
+  const data = await response.json()
+  console.log("Translated " + text + " to " + data.data.translations[0].translatedText)
+  return data.data.translations[0].translatedText
+}
+
 let loaded = false
 
 function App() {
@@ -66,6 +87,7 @@ async function startGame() {
     }
     if (Math.random() < 0.5) {
       let crime = pageresponse.data.arrest_warrants[0].charge
+      crime = await translateText(crime, 'en')
       container.querySelector('#crime-container')!.innerHTML = `${crime}`
       let tr = document.createElement('span')
       tr.innerHTML = 'r'
@@ -80,6 +102,7 @@ async function startGame() {
         return
       }
       let rcrime = rnoticepageresponse.data.arrest_warrants[0].charge
+      rcrime = await translateText(rcrime, 'en')
       container.querySelector('#crime-container')!.innerHTML = `${rcrime}`
       let tr = document.createElement('span')
       tr.innerHTML = pageresponse.data.arrest_warrants[0].charge
