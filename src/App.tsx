@@ -1,39 +1,47 @@
 import './App.css'
 import axios from 'axios'
+import { MantineProvider, Title } from '@mantine/core'
 
 
 async function translateText(text: string, targetLanguage: string) {
-  const apiKey = "GCLOUD_API_KEY"
-  const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`
+  try {
+    const apiKey = "GCLOUD_API_KEY"
+    const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      q: text,
-      target: targetLanguage,
-    }),
-  })
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        q: text,
+        target: targetLanguage,
+      }),
+    })
 
-  const data = await response.json()
-  console.log("Translated " + text + " to " + data.data.translations[0].translatedText)
-  return data.data.translations[0].translatedText
+    const data = await response.json()
+    console.log("Translated " + text + " to " + data.data.translations[0].translatedText)
+    return data.data.translations[0].translatedText
+  } catch (error) {
+    console.error(error)
+    return text
+  }
 }
 
 let loaded = false
 
 function App() {
   return (
-    <>
+    <MantineProvider>
+      <Title order={1}>Does the photo match the crime?</Title>
       <h3 id="accuracy">Accuracy: 0%</h3>
+      <div id="op">
       <div id='game-container'>
         <button id="starter-button" onClick={startGame}>Start Game</button>
       </div>
       <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png" onLoad={pageLoaded} no-cache="true" alt="1x1" />
-      <sub>Images and data from Interpol and FBI</sub>
-    </>
+      <sub>Images and data from Interpol and FBI</sub></div>
+    </MantineProvider>
   )
 }
 
@@ -63,7 +71,7 @@ async function startGame() {
   const url2 = `https://api.fbi.gov/wanted/v1/list?page=`
   const container = document.getElementById('game-container')
   if (!container) return;
-  container.innerHTML = '<h2 id="objective">Does this image match the case?</h2><div id="mugshot-container"></div><div id="crime-container"></div><div id="match-container"></div>'
+  container.innerHTML = '<div id="mugshot-container"></div><div id="crime-container"></div><div id="match-container"></div>'
   if (Math.random() < 0.5) {
     let page = Math.floor(Math.random() * 1000)
     const response = await axios.get(url + page)
@@ -181,11 +189,51 @@ function match() {
   const tr = container.querySelector('#tr')
   if (!tr) return;
   let bool;
+  const op = document.querySelector('#op') as HTMLElement
+  if (!op) return;
   if (tr.innerHTML === "r") {
-    alert('Correct!')
+    op.style.opacity = '0'
+    // Create dark green overlay
+    const overlay = document.createElement('div')
+    overlay.style.position = 'absolute'
+    overlay.style.width = '100vw'
+    overlay.style.height = '100vh'
+    overlay.style.top = '0'
+    overlay.style.left = '0'
+    overlay.style.backgroundColor = 'rgba(0, 128, 0, 0.3)'
+    overlay.style.zIndex = '100'
+    overlay.style.display = 'flex'
+    overlay.style.justifyContent = 'center'
+    overlay.style.alignItems = 'center'
+    overlay.style.fontSize = '10rem'
+    overlay.innerHTML = '✔️'
+    document.body.appendChild(overlay)
+    setTimeout(() => {
+      document.body.removeChild(overlay)
+      op.style.opacity = '1'
+    }, 1000)
     bool = 1
   } else {
-    alert('Incorrect!')
+    op.style.opacity = '0'
+    // Create red overlay
+    const overlay = document.createElement('div')
+    overlay.style.position = 'absolute'
+    overlay.style.width = '100vw'
+    overlay.style.height = '100vh'
+    overlay.style.top = '0'
+    overlay.style.left = '0'
+    overlay.style.backgroundColor = 'rgba(128, 0, 0, 0.3)'
+    overlay.style.zIndex = '100'
+    overlay.style.display = 'flex'
+    overlay.style.justifyContent = 'center'
+    overlay.style.alignItems = 'center'
+    overlay.style.fontSize = '10rem'
+    overlay.innerHTML = '❌'
+    document.body.appendChild(overlay)
+    setTimeout(() => {
+      document.body.removeChild(overlay)
+      op.style.opacity = '1'
+    }, 1000)
     bool = 0
   }
 
@@ -221,11 +269,51 @@ function noMatch() {
   const tr = container.querySelector('#tr')
   if (!tr) return;
   let bool;
+  const op = document.querySelector('#op') as HTMLElement
+  if (!op) return;
   if (tr.innerHTML === "r") {
-    alert('Incorrect!')
+    op.style.opacity = '0'
+    // Create red overlay
+    const overlay = document.createElement('div')
+    overlay.style.position = 'absolute'
+    overlay.style.width = '100vw'
+    overlay.style.height = '100vh'
+    overlay.style.top = '0'
+    overlay.style.left = '0'
+    overlay.style.backgroundColor = 'rgba(128, 0, 0, 0.3)'
+    overlay.style.zIndex = '100'
+    overlay.style.display = 'flex'
+    overlay.style.justifyContent = 'center'
+    overlay.style.alignItems = 'center'
+    overlay.style.fontSize = '10rem'
+    overlay.innerHTML = '❌'
+    document.body.appendChild(overlay)
+    setTimeout(() => {
+      document.body.removeChild(overlay)
+      op.style.opacity = '1'
+    }, 1000)
     bool = 0
   } else {
-    alert('Correct!')
+    op.style.opacity = '0'
+    // Create dark green overlay
+    const overlay = document.createElement('div')
+    overlay.style.position = 'absolute'
+    overlay.style.width = '100vw'
+    overlay.style.height = '100vh'
+    overlay.style.top = '0'
+    overlay.style.left = '0'
+    overlay.style.backgroundColor = 'rgba(0, 128, 0, 0.3)'
+    overlay.style.zIndex = '100'
+    overlay.style.display = 'flex'
+    overlay.style.justifyContent = 'center'
+    overlay.style.alignItems = 'center'
+    overlay.style.fontSize = '10rem'
+    overlay.innerHTML = '✔️'
+    document.body.appendChild(overlay)
+    setTimeout(() => {
+      document.body.removeChild(overlay)
+      op.style.opacity = '1'
+    }, 1000)
     bool = 1
   }
 
